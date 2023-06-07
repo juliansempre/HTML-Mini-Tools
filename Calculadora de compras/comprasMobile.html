@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Calculadora de Compras</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    input[type='text'], input[type='number'] {
+      width: 100%;
+      height: 50px;
+    }
+
+    #form {
+      margin-bottom: 20px;
+    }
+
+    #list {
+      list-style: none;
+      padding: 0;
+    }
+
+    #list li {
+      margin-bottom: 10px;
+    }
+
+    #total {
+      font-weight: bold;
+    }
+
+    button {
+      width: 100%;
+      height: 40px;
+      background-color: green;
+      color: rgb(255,255,255);
+    }
+
+    button:hover {
+      width: 100%;
+      height: 40px;
+      background-color: green;
+      color: rgb(255,255,255);
+    }
+
+    #total {
+
+    }
+  table{
+      width: 100%;
+    }
+  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <h1>Calculadora de Compras</h1>
+
+  <br id="form">
+  <hr></hr>
+  <p>Total: R$ <span id="total">0.00</span></p>
+  <hr></hr>
+  <label for="product">Produto:</label>
+  <input type="text" id="product" placeholder="Digite o produto">
+  <br/>
+  <label for="quantity">Quantidade:</label>
+  <input type="number" id="quantity" placeholder="Digite a quantidade">
+  </br>
+  <label for="value">Valor:</label>
+  <input type="number" id="value" placeholder="Digite o valor">
+  <br/>
+  <table>
+    <tr>
+      <td>
+        <button onclick="addProduct()">Adicionar</button>
+      </td>
+      <td>
+        <button onclick="updateItem()">Atualizar</button>
+      </td>
+      <td>
+        <button onclick="deleteItem()">Deletar</button>
+      </td>
+    </tr>
+  </table>
+ 
+
+  
+  </div>
+  <ul id="list"></ul>
+  <script>
+    var total = 0.0;
+    var selectedItem = null;
+
+    function addProduct() {
+      var quantityInput = document.getElementById('quantity');
+      var quantity = parseFloat(quantityInput.value);
+
+      if (isNaN(quantity)) {
+        alert('Por favor, insira uma quantidade numérica.');
+        return;
+      }
+
+      var productInput = document.getElementById('product');
+      var valueInput = document.getElementById('value');
+      var product = productInput.value;
+      var value = parseFloat(valueInput.value) * quantity;
+
+      if (product.trim() === '' || isNaN(value)) {
+        alert('Por favor, insira um produto válido e um valor numérico.');
+        return;
+      }
+
+      var listItem = document.createElement('li');
+      var checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.addEventListener('change', function() {
+        if (this.checked) {
+          selectItem(this.parentNode);
+        } else {
+          deselectItem();
+        }
+      });
+
+      var linha = document.createElement('hr');
+      listItem.textContent = quantity + " " + product + ' - R$ ' + value.toFixed(2);
+      listItem.setAttribute('data-value', value);
+
+      listItem.appendChild(checkbox);
+
+      var list = document.getElementById('list');
+      list.appendChild(listItem);
+      list.appendChild(linha);
+
+      total += value;
+      var totalElement = document.getElementById('total');
+      totalElement.textContent = total.toFixed(2);
+
+      productInput.value = '';
+      valueInput.value = '';
+      quantityInput.value = '';
+    }
+
+    function updateItem() {
+      if (selectedItem === null) {
+        alert('Nenhum item selecionado para atualizar.');
+        return;
+      }
+
+      var productInput = document.getElementById('product');
+      var valueInput = document.getElementById('value');
+      var quantityInput = document.getElementById('quantity');
+      var quantity = parseFloat(quantityInput.value);
+
+      if (isNaN(quantity)) {
+        alert('Por favor, insira uma quantidade numérica.');
+        return;
+      }
+
+      var product = productInput.value;
+      var value = parseFloat(valueInput.value) * quantity;
+
+      if (product.trim() === '' || isNaN(value)) {
+        alert('Por favor, insira um produto válido e um valor numérico.');
+        return;
+      }
+
+      var oldValue = parseFloat(selectedItem.getAttribute('data-value'));
+
+      selectedItem.textContent = "";
+      var checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.addEventListener('change', function() {
+        if (this.checked) {
+          selectItem(this.parentNode);
+        } else {
+          deselectItem();
+        }
+      });
+
+      var quantityNode = document.createElement('span');
+      quantityNode.textContent = quantity + " ";
+
+      selectedItem.appendChild(checkbox);
+      selectedItem.appendChild(quantityNode);
+      selectedItem.appendChild(document.createTextNode(product + ' - R$ ' + value.toFixed(2)));
+      selectedItem.setAttribute('data-value', value);
+
+      total += (value - oldValue);
+      var totalElement = document.getElementById('total');
+      totalElement.textContent = total.toFixed(2);
+
+      productInput.value = '';
+      valueInput.value = '';
+      quantityInput.value = '';
+      selectedItem = null;
+    }
+
+    function deleteItem() {
+      if (selectedItem === null) {
+        alert('Nenhum item selecionado para deletar.');
+        return;
+      }
+
+      var oldValue = parseFloat(selectedItem.getAttribute('data-value'));
+      selectedItem.remove();
+      total -= oldValue;
+      var totalElement = document.getElementById('total');
+      totalElement.textContent = total.toFixed(2);
+
+      var productInput = document.getElementById('product');
+      var valueInput = document.getElementById('value');
+      var quantityInput = document.getElementById('quantity');
+      productInput.value = '';
+      valueInput.value = '';
+      quantityInput.value = '';
+      selectedItem = null;
+    }
+
+    function selectItem(item) {
+      if (selectedItem !== null) {
+        selectedItem.style.backgroundColor = '';
+        selectedItem.querySelector('input[type="checkbox"]').checked = false;
+      }
+
+      selectedItem = item;
+      selectedItem.style.backgroundColor = 'lightgray';
+    }
+
+    function deselectItem() {
+      if (selectedItem !== null) {
+        selectedItem.style.backgroundColor = '';
+        selectedItem = null;
+      }
+    }
+  </script>
+</body>
+</html>
